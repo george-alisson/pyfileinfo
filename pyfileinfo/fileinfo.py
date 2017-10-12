@@ -95,8 +95,7 @@ class FileInfo(object):
         '''
         if self.is_directory:
             return self.get_directory_length()
-        else:
-            return self.length
+        return self.length
 
     def __str__(self):
         '''
@@ -113,7 +112,8 @@ class FileInfo(object):
             if os.path.exists(self.original_path):
                 return open(self.original_path, "a+")
             raise FileNotFoundException("'%s' not found" % self.original_path)
-        raise UnauthorizedAccessException("'%s' is not a file" % self.original_path)
+        raise UnauthorizedAccessException(
+            "'%s' is not a file" % self.original_path)
 
     def copy_to(self, location, overwrite=False):
         '''
@@ -128,7 +128,8 @@ class FileInfo(object):
                 if (overwrite) or (not os.path.exists(location)):
                     shutil.copyfile(self.original_path, location)
                     return FileInfo(location)
-                raise FileAlreadyExistsException("'%s' already exists" % location)
+                raise FileAlreadyExistsException(
+                    "'%s' already exists" % location)
             elif os.path.isdir(self.original_path):
                 if os.path.exists(location):
                     if overwrite:
@@ -136,14 +137,17 @@ class FileInfo(object):
                         shutil.copytree(self.original_path, location)
                         return FileInfo(location)
                     else:
-                        raise DirectoryAlreadyExistsException("'%s' already exists" % location)
+                        raise DirectoryAlreadyExistsException(
+                            "'%s' already exists" % location)
                 else:
                     shutil.copytree(self.original_path, location)
                     return FileInfo(location)
             else:
-                raise NotSupportedException("'%s' can't be copied" % self.original_path)
+                raise NotSupportedException(
+                    "'%s' can't be copied" % self.original_path)
         else:
-            raise DirectoryNotFoundException("'%s' not found" % self.original_path)
+            raise DirectoryNotFoundException(
+                "'%s' not found" % self.original_path)
 
     def create(self):
         '''
@@ -152,7 +156,8 @@ class FileInfo(object):
         '''
         if not os.path.exists(self.original_path):
             return open(self.original_path, 'wb+')
-        raise FileAlreadyExistsException("'%s' already exists" % self.original_path)
+        raise FileAlreadyExistsException(
+            "'%s' already exists" % self.original_path)
 
     def create_text(self):
         '''
@@ -161,7 +166,8 @@ class FileInfo(object):
         '''
         if not os.path.exists(self.original_path):
             return open(self.original_path, 'w+')
-        raise FileAlreadyExistsException("'%s' already exists" % self.original_path)
+        raise FileAlreadyExistsException(
+            "'%s' already exists" % self.original_path)
 
     def create_directory(self):
         '''
@@ -171,7 +177,8 @@ class FileInfo(object):
         if not os.path.exists(self.original_path):
             os.mkdir(self.original_path)
         else:
-            raise DirectoryAlreadyExistsException("'%s' already exists" % self.original_path)
+            raise DirectoryAlreadyExistsException(
+                "'%s' already exists" % self.original_path)
 
     def decrypt(self):
         '''
@@ -196,9 +203,11 @@ class FileInfo(object):
             elif os.path.isdir(self.original_path):
                 os.rmdir(self.original_path)
             else:
-                raise NotSupportedException("'%s' can't be removed" % self.original_path)
+                raise NotSupportedException(
+                    "'%s' can't be removed" % self.original_path)
         else:
-            raise DirectoryNotFoundException("'%s' not found" % self.original_path)
+            raise DirectoryNotFoundException(
+                "'%s' not found" % self.original_path)
 
     def delete_tree(self, ignoreerros=False, onerror=None):
         '''
@@ -216,9 +225,11 @@ class FileInfo(object):
                             raise
                 shutil.rmtree(self.original_path, ignoreerros, onerror)
             else:
-                raise NotSupportedException("'%s' can't be removed" % self.original_path)
+                raise NotSupportedException(
+                    "'%s' can't be removed" % self.original_path)
         else:
-            raise DirectoryNotFoundException("'%s' not found" % self.original_path)
+            raise DirectoryNotFoundException(
+                "'%s' not found" % self.original_path)
 
     def encrypt(self):
         '''
@@ -269,7 +280,8 @@ class FileInfo(object):
                 except:
                     raise NotSupportedException("you need pywin modules")
                 try:
-                    security = win32security.GetFileSecurity(self.original_path, information)
+                    security = win32security.GetFileSecurity(
+                        self.original_path, information)
                     return win32security.ConvertSecurityDescriptorToStringSecurityDescriptor(security, win32security.SDDL_REVISION_1, information)
                 except win32security.error as err:
                     raise UnauthorizedAccessException(err)
@@ -297,7 +309,8 @@ class FileInfo(object):
                 except:
                     raise NotSupportedException("you need pywin modules")
                 try:
-                    win32security.SetFileSecurity(self.original_path, information, security)
+                    win32security.SetFileSecurity(
+                        self.original_path, information, security)
                 except win32security.error as err:
                     raise UnauthorizedAccessException(err)
         else:
@@ -325,8 +338,10 @@ class FileInfo(object):
                 except:
                     raise NotSupportedException("you need pywin modules")
                 try:
-                    security = win32security.ConvertStringSecurityDescriptorToSecurityDescriptor(security, win32security.SDDL_REVISION_1)
-                    win32security.SetFileSecurity(self.original_path, information, security)
+                    security = win32security.ConvertStringSecurityDescriptorToSecurityDescriptor(
+                        security, win32security.SDDL_REVISION_1)
+                    win32security.SetFileSecurity(
+                        self.original_path, information, security)
                 except win32security.error as err:
                     raise UnauthorizedAccessException(err)
         else:
@@ -345,9 +360,11 @@ class FileInfo(object):
                 shutil.move(self.original_path, location)
                 self.__path = location
             else:
-                raise DirectoryAlreadyExistsException("'%s' already exists" % location)
+                raise DirectoryAlreadyExistsException(
+                    "'%s' already exists" % location)
         else:
-            raise DirectoryNotFoundException("'%s' not found" % self.original_path)
+            raise DirectoryNotFoundException(
+                "'%s' not found" % self.original_path)
 
     def open(self, flags="rb+", buffersize=-1):
         '''
@@ -358,7 +375,8 @@ class FileInfo(object):
         '''
         if os.path.isfile(self.original_path) or not os.path.exists(self.original_path):
             return open(self.original_path, flags, buffersize)
-        raise UnauthorizedAccessException("'%s' is not a file" % self.original_path)
+        raise UnauthorizedAccessException(
+            "'%s' is not a file" % self.original_path)
 
     def open_shared(self, flags="rb+", sharemode="a", buffersize=-1):
         '''
@@ -413,7 +431,8 @@ class FileInfo(object):
                     mode = os.O_WRONLY | os.O_TRUNC
                     flags = flags.replace("t", "w")
                 else:
-                    raise TypeError("Invalid file open mode. Should be \"r\" (read), \"w\" (write)(\"a\" (append) or \"c\" (create)")
+                    raise TypeError(
+                        "Invalid file open mode. Should be \"r\" (read), \"w\" (write)(\"a\" (append) or \"c\" (create)")
 
                 # read/write access
                 if "+" in flags:
@@ -466,7 +485,8 @@ class FileInfo(object):
                     else:
                         shmode = 0x20  # _SH_DENYWR
                 else:
-                    raise TypeError("'sharemode' should be \"a\" (allow read/write), \"r\" (deny read), \"w\" (deny write)(\"d\" (deny read/write) or \"s\" (secure share)")
+                    raise TypeError(
+                        "'sharemode' should be \"a\" (allow read/write), \"r\" (deny read), \"w\" (deny write)(\"d\" (deny read/write) or \"s\" (secure share)")
                 import ctypes
                 msvcrt = ctypes.cdll[ctypes.util.find_msvcrt()]
                 sopen = msvcrt._sopen
@@ -489,7 +509,8 @@ class FileInfo(object):
                     raise err
             else:
                 raise NotSupportedException("share mode options is win32 only")
-        raise UnauthorizedAccessException("'%s' is not a file" % self.original_path)
+        raise UnauthorizedAccessException(
+            "'%s' is not a file" % self.original_path)
 
     def open_text(self):
         '''
@@ -500,7 +521,8 @@ class FileInfo(object):
             if os.path.exists(self.original_path):
                 return open(self.original_path, "r+")
             raise FileNotFoundException("'%s' not found" % self.original_path)
-        raise UnauthorizedAccessException("'%s' is not a file" % self.original_path)
+        raise UnauthorizedAccessException(
+            "'%s' is not a file" % self.original_path)
 
     def open_unicode_text(self, flags="r+", encoding="UTF-8", errors='strict', buffering=1):
         '''
@@ -511,7 +533,8 @@ class FileInfo(object):
         if os.path.isfile(self.original_path) or not os.path.exists(self.original_path):
             import codecs
             return codecs.open(self.original_path, flags, encoding, errors, buffering)
-        raise UnauthorizedAccessException("'%s' is not a file" % self.original_path)
+        raise UnauthorizedAccessException(
+            "'%s' is not a file" % self.original_path)
 
     def open_read(self):
         '''
@@ -522,7 +545,8 @@ class FileInfo(object):
             if os.path.exists(self.original_path):
                 return open(self.original_path, "rb")
             raise FileNotFoundException("'%s' not found" % self.original_path)
-        raise UnauthorizedAccessException("'%s' is not a file" % self.original_path)
+        raise UnauthorizedAccessException(
+            "'%s' is not a file" % self.original_path)
 
     def open_write(self):
         '''
@@ -533,7 +557,8 @@ class FileInfo(object):
             if os.path.exists(self.original_path):
                 return open(self.original_path, "ab")
             raise FileNotFoundException("'%s' not found" % self.original_path)
-        raise UnauthorizedAccessException("'%s' is not a file" % self.original_path)
+        raise UnauthorizedAccessException(
+            "'%s' is not a file" % self.original_path)
 
     def replace(self, file, backup):
         '''
@@ -547,7 +572,8 @@ class FileInfo(object):
                 shutil.move(file, backup)
                 self.move_to(file)
             else:
-                raise FileAlreadyExistsException("'%s' already exists" % backup)
+                raise FileAlreadyExistsException(
+                    "'%s' already exists" % backup)
         else:
             raise FileNotFoundException("'%s' not found" % file)
 
@@ -564,9 +590,11 @@ class FileInfo(object):
                 os.mkdir(dirname)
                 return FileInfo(dirname)
             else:
-                raise DirectoryAlreadyExistsException("'%s' already exists" % dirname)
+                raise DirectoryAlreadyExistsException(
+                    "'%s' already exists" % dirname)
         else:
-            raise NotSupportedException("'%s' is not a directory" % self.original_path)
+            raise NotSupportedException(
+                "'%s' is not a directory" % self.original_path)
 
     def create_subdirectory_tree(self, tree):
         '''
@@ -583,7 +611,8 @@ class FileInfo(object):
                 base = fi.full_name
             return fi
         else:
-            raise NotSupportedException("'%s' is not a directory" % self.original_path)
+            raise NotSupportedException(
+                "'%s' is not a directory" % self.original_path)
 
     def get_directories(self, search="*", option=DirectorySearchOption.TopDirectoryOnly):
         '''
@@ -616,7 +645,8 @@ class FileInfo(object):
         'option' should be one of the enumeration DirectorySearchOption values. Dafaults to 'TopDirectoryOnly'.
         '''
         if not os.path.isdir(self.original_path):
-            raise NotSupportedException("'%s' is not a directory" % self.original_path)
+            raise NotSupportedException(
+                "'%s' is not a directory" % self.original_path)
         if option == DirectorySearchOption.TopDirectoryOnly:
             for name in os.listdir(self.original_path):
                 if os.path.isdir(os.path.join(self.original_path, name)) and fnmatch.fnmatch(name, search):
@@ -644,7 +674,8 @@ class FileInfo(object):
         'option' should be one of the enumeration DirectorySearchOption values. Dafaults to 'TopDirectoryOnly'.
         '''
         if not os.path.isdir(self.original_path):
-            raise NotSupportedException("'%s' is not a directory" % self.original_path)
+            raise NotSupportedException(
+                "'%s' is not a directory" % self.original_path)
         if option == DirectorySearchOption.TopDirectoryOnly:
             for name in os.listdir(self.original_path):
                 if os.path.isfile(os.path.join(self.original_path, name)) and fnmatch.fnmatch(name, search):
@@ -672,7 +703,8 @@ class FileInfo(object):
         'option' should be one of the enumeration DirectorySearchOption values. Dafaults to 'TopDirectoryOnly'.
         '''
         if not os.path.isdir(self.original_path):
-            raise NotSupportedException("'%s' is not a directory" % self.original_path)
+            raise NotSupportedException(
+                "'%s' is not a directory" % self.original_path)
         if option == DirectorySearchOption.TopDirectoryOnly:
             for name in os.listdir(self.original_path):
                 if fnmatch.fnmatch(name, search):
@@ -718,16 +750,19 @@ class FileInfo(object):
                     return filecmp.cmp(self.original_path, other)
                 elif os.path.isdir(self.original_path):
                     if os.path.isdir(other):
-                        commfiles = filecmp.dircmp(self.original_path, other).common_files
+                        commfiles = filecmp.dircmp(
+                            self.original_path, other).common_files
                         return bool(commfiles) and (filecmp.cmpfiles(self.original_path, other, commfiles)[0] == commfiles)
                     else:
                         return False
                 else:
-                    raise NotSupportedException("'%s' is not a file or directory" % self.original_path)
+                    raise NotSupportedException(
+                        "'%s' is not a file or directory" % self.original_path)
             else:
                 raise DirectoryNotFoundException("'%s' not found" % other)
         else:
-            raise DirectoryNotFoundException("'%s' not found" % self.original_path)
+            raise DirectoryNotFoundException(
+                "'%s' not found" % self.original_path)
 
     def compress(self):
         '''
@@ -743,7 +778,8 @@ class FileInfo(object):
         if not os.path.exists(self.original_path):
             raise FileNotFoundException("'%s' not found" % self.original_path)
         if self.is_read_only:
-            raise UnauthorizedAccessException("'%s' is readonly." % self.original_path)
+            raise UnauthorizedAccessException(
+                "'%s' is readonly." % self.original_path)
         hFile = win32file.CreateFile(self.full_path, win32file.GENERIC_READ | win32file.FILE_GENERIC_WRITE,
                                      win32file.FILE_SHARE_READ | win32file.FILE_SHARE_WRITE, None, win32file.OPEN_EXISTING,
                                      win32file.FILE_FLAG_BACKUP_SEMANTICS, 0)
@@ -764,7 +800,8 @@ class FileInfo(object):
         if not os.path.exists(self.original_path):
             raise FileNotFoundException("'%s' not found" % self.original_path)
         if self.is_read_only:
-            raise UnauthorizedAccessException("'%s' is readonly." % self.original_path)
+            raise UnauthorizedAccessException(
+                "'%s' is readonly." % self.original_path)
         hFile = win32file.CreateFile(self.full_path, win32file.GENERIC_READ | win32file.FILE_GENERIC_WRITE,
                                      win32file.FILE_SHARE_READ | win32file.FILE_SHARE_WRITE, None, win32file.OPEN_EXISTING,
                                      win32file.FILE_FLAG_BACKUP_SEMANTICS, 0)
@@ -779,7 +816,8 @@ class FileInfo(object):
         if name == self.name:
             return
         if name != os.path.basename(name):
-            raise NotSupportedException("'name' must be a basename, not a path; use move_to() instead")
+            raise NotSupportedException(
+                "'name' must be a basename, not a path; use move_to() instead")
         name = os.path.join(self.directory_name, name)
         self.move_to(name)
 
@@ -791,7 +829,8 @@ class FileInfo(object):
         if directory == self.directory_name:
             return
         if os.path.isfile(directory):
-            raise NotSupportedException("'directory' must be a path, not a file; use move_to() instead")
+            raise NotSupportedException(
+                "'directory' must be a path, not a file; use move_to() instead")
         directory = os.path.join(directory, self.name)
         self.move_to(directory)
 
@@ -804,7 +843,8 @@ class FileInfo(object):
         if directory == self.directory_name:
             return FileInfo(self.original_path)
         if os.path.isfile(directory):
-            raise NotSupportedException("'directory' must be a path, not a file; use copy_to() instead")
+            raise NotSupportedException(
+                "'directory' must be a path, not a file; use copy_to() instead")
         directory = os.path.join(directory, self.name)
         return self.copy_to(directory, overwrite)
 
@@ -814,7 +854,8 @@ class FileInfo(object):
         Joins the path of the current FileInfo object to the path 'other'.
         '''
         if not os.path.isdir(self.original_path):
-            raise NotSupportedException("'%s' is not a directory" % self.original_path)
+            raise NotSupportedException(
+                "'%s' is not a directory" % self.original_path)
         if isinstance(other, FileInfo):
             return FileInfo(os.path.join(self.full_path, other.full_path))
         return FileInfo(os.path.join(self.full_path, other))
@@ -855,7 +896,8 @@ class FileInfo(object):
             if os.path.exists(self.original_path):
                 return FileAttributes(win32file.GetFileAttributes(self.original_path))
             else:
-                raise DirectoryNotFoundException("'%s' not found" % self.original_path)
+                raise DirectoryNotFoundException(
+                    "'%s' not found" % self.original_path)
 
         def fset(self, attrib):
             try:
@@ -866,13 +908,15 @@ class FileInfo(object):
                 if isinstance(attrib, FileAttributes):
                     attrib = attrib.value
                 if not isinstance(attrib, int):
-                    raise TypeError("Attributes should be a bitwise combination of the enumeration FileAttributes values")
+                    raise TypeError(
+                        "Attributes should be a bitwise combination of the enumeration FileAttributes values")
                 if attrib != 0:
                     if os.path.isdir(self.original_path):
                         attrib &= ~0x100
                     win32file.SetFileAttributes(self.original_path, attrib)
             else:
-                raise DirectoryNotFoundException("'%s' not found" % self.original_path)
+                raise DirectoryNotFoundException(
+                    "'%s' not found" % self.original_path)
         return locals()
 
     @Property
@@ -897,13 +941,16 @@ class FileInfo(object):
             except:
                 raise NotSupportedException("set is win32 only")
             if not os.path.exists(self.original_path):
-                raise FileNotFoundException("'%s' not found" % self.original_path)
+                raise FileNotFoundException(
+                    "'%s' not found" % self.original_path)
             if self.IsReadOnly:
-                raise UnauthorizedAccessException("'%s' is readonly." % self.original_path)
+                raise UnauthorizedAccessException(
+                    "'%s' is readonly." % self.original_path)
             hFile = win32file.CreateFile(self.full_path, win32file.GENERIC_READ | win32file.FILE_GENERIC_WRITE,
                                          win32file.FILE_SHARE_READ | win32file.FILE_SHARE_WRITE, None, win32file.OPEN_EXISTING,
                                          win32file.FILE_FLAG_BACKUP_SEMANTICS, 0)
-            ctime = pywintypes.Time(time.mktime(settime.timetuple()) + (settime.microsecond / 1000000.0))
+            ctime = pywintypes.Time(time.mktime(
+                settime.timetuple()) + (settime.microsecond / 1000000.0))
             win32file.SetFileTime(hFile, ctime, None, None)
             win32file.CloseHandle(hFile)
         return locals()
@@ -952,7 +999,8 @@ class FileInfo(object):
 
         def fset(self, new):
             if not isinstance(new, basestring) or not new or new[0] != ".":
-                raise TypeError("Extension should be a string or unicode starting with '.'")
+                raise TypeError(
+                    "Extension should be a string or unicode starting with '.'")
             self.Rename(self.base_name + new)
         return locals()
 
@@ -1120,7 +1168,8 @@ class FileInfo(object):
             if ret != self.root:
                 return ret
             return ""
-        raise NotSupportedException("'%s' is not a directory" % self.original_path)
+        raise NotSupportedException(
+            "'%s' is not a directory" % self.original_path)
 
 
 __all__ = ["FileInfo", "FileInfoError", "FileNotFoundException", "FileAlreadyExistsException",

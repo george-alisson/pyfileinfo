@@ -5,6 +5,7 @@
 import re
 from .exceptions import NotSupportedException
 
+
 def Property(func):
     return property(**func())
 
