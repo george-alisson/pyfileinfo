@@ -243,14 +243,16 @@ class FileInfo(object):
             raise NotSupportedException("this method is win32 only")
         win32file.EncryptFile(self.original_path)
 
-    def get_access_control(self, information=SecurityInformation.Owner | SecurityInformation.Group | SecurityInformation.Dacl):
+    def get_access_control(self, information=SecurityInformation.OWNER | SecurityInformation.GROUP | SecurityInformation.DACL):
         '''
         fi.get_access_control([information]) -> int or a SECURITY object
         Gets a string thats represent the access control for the file or directory described by the current FileInfo object.
         If non-WinNT system, return os.stat() of self.original_path, else return a win32security SECURITY object, returned by GetFileSecurity(self.original_path, information) api function
-        'information' defaults to SecurityInformation.Owner | SecurityInformation.Group | SecurityInformation.Dacl
+        'information' defaults to SecurityInformation.OWNER | SecurityInformation.GROUP | SecurityInformation.DACL
         '''
         if os.path.exists(self.original_path):
+            if isinstance(information, SecurityInformation):
+                information = information.value
             if os.name != "nt":
                 return os.stat(self.original_path)
             else:
@@ -264,14 +266,16 @@ class FileInfo(object):
                     raise UnauthorizedAccessException(err)
         raise FileNotFoundException("'%s' not found" % self.original_path)
 
-    def get_access_control_string(self, information=SecurityInformation.Owner | SecurityInformation.Group | SecurityInformation.Dacl):
+    def get_access_control_string(self, information=SecurityInformation.OWNER | SecurityInformation.GROUP | SecurityInformation.DACL):
         '''
         fi.get_access_control_string([information]) -> int or a SECURITY string
         Gets a string thats represent the access control for the file or directory described by the current FileInfo object.
         If non-WinNT system, return os.stat() of self.original_path, else return SECURITY string, returned by GetFileSecurity(self.original_path, information) api function
-        'information' defaults to SecurityInformation.Owner | SecurityInformation.Group | SecurityInformation.Dacl
+        'information' defaults to SecurityInformation.OWNER | SecurityInformation.GROUP | SecurityInformation.DACL
         '''
         if os.path.exists(self.original_path):
+            if isinstance(information, SecurityInformation):
+                information = information.value
             if os.name != "nt":
                 return os.stat(self.original_path)
             else:
@@ -287,14 +291,16 @@ class FileInfo(object):
                     raise UnauthorizedAccessException(err)
         raise FileNotFoundException("'%s' not found" % self.original_path)
 
-    def set_access_control(self, security, information=SecurityInformation.Owner | SecurityInformation.Group | SecurityInformation.Dacl):
+    def set_access_control(self, security, information=SecurityInformation.OWNER | SecurityInformation.GROUP | SecurityInformation.DACL):
         '''
         fi.set_access_control(security, [infomarion]) -> None
         Applies access control described by a win32security SECURITY object to the file described by the current FileInfo object.
         If non-WinNT system, sets os.chmode(), os.chown(), os.chflags() to security, else use SetFileSecurity(self.original_path, information, security) api function, with security as a SECURITY object
-        'information' defaults to SecurityInformation.Owner | SecurityInformation.Group | SecurityInformation.Dacl
+        'information' defaults to SecurityInformation.OWNER | SecurityInformation.GROUP | SecurityInformation.DACL
         '''
         if os.path.exists(self.original_path):
+            if isinstance(information, SecurityInformation):
+                information = information.value
             if os.name != "nt":
                 if information & 0x1:
                     os.chmod(self.original_path, security.st_mode)
@@ -316,14 +322,16 @@ class FileInfo(object):
         else:
             raise FileNotFoundException("'%s' not found" % self.original_path)
 
-    def set_access_control_string(self, security, information=SecurityInformation.Owner | SecurityInformation.Group | SecurityInformation.Dacl):
+    def set_access_control_string(self, security, information=SecurityInformation.OWNER | SecurityInformation.GROUP | SecurityInformation.DACL):
         '''
         fi.set_access_control_string(security, [infomarion]) -> None
         Applies access control described by a SECURITY string to the file described by the current FileInfo object.
         If non-WinNT system, sets os.chmode(), os.chown(), os.chflags() to security, else use SetFileSecurity(self.original_path, information, security) api function, with security as a SECURITY string
-        'information' defaults to SecurityInformation.Owner | SecurityInformation.Group | SecurityInformation.Dacl
+        'information' defaults to SecurityInformation.OWNER | SecurityInformation.GROUP | SecurityInformation.DACL
         '''
         if os.path.exists(self.original_path):
+            if isinstance(information, SecurityInformation):
+                information = information.value
             if os.name != "nt":
                 if information & 0x1:
                     os.chmod(self.original_path, security.st_mode)
@@ -614,44 +622,44 @@ class FileInfo(object):
             raise NotSupportedException(
                 "'%s' is not a directory" % self.original_path)
 
-    def get_directories(self, search="*", option=DirectorySearchOption.TopDirectoryOnly):
+    def get_directories(self, search="*", option=DirectorySearchOption.TOP_DIRECTORY_ONLY):
         '''
         fi.get_directories(search, option) -> list of FileInfo of the subdirectories
         Returns the subdirectories of the current directory.
-        'option' should be one of the enumeration DirectorySearchOption values. Dafaults to 'TopDirectoryOnly'.
+        'option' should be one of the enumeration DirectorySearchOption values. Dafaults to 'TOP_DIRECTORY_ONLY'.
         '''
         return list(self.iter_directories(search, option))
 
-    def get_files(self, search="*", option=DirectorySearchOption.TopDirectoryOnly):
+    def get_files(self, search="*", option=DirectorySearchOption.TOP_DIRECTORY_ONLY):
         '''
         fi.get_files(search, option) -> list of FileInfo of the filenames
         Returns a file list from the current directory.
-        'option' should be one of the enumeration DirectorySearchOption values. Dafaults to 'TopDirectoryOnly'.
+        'option' should be one of the enumeration DirectorySearchOption values. Dafaults to 'TOP_DIRECTORY_ONLY'.
         '''
         return list(self.iter_files(search, option))
 
-    def get_items(self, search="*", option=DirectorySearchOption.TopDirectoryOnly):
+    def get_items(self, search="*", option=DirectorySearchOption.TOP_DIRECTORY_ONLY):
         '''
         fi.get_items(search, option) -> list of FileInfo of the filenames and subdirectories
         Returns a list of files and subdirectories from the current directory.
-        'option' should be one of the enumeration DirectorySearchOption values. Dafaults to 'TopDirectoryOnly'.
+        'option' should be one of the enumeration DirectorySearchOption values. Dafaults to 'TOP_DIRECTORY_ONLY'.
         '''
         return list(self.iter_items(search, option))
 
-    def iter_directories(self, search="*", option=DirectorySearchOption.TopDirectoryOnly):
+    def iter_directories(self, search="*", option=DirectorySearchOption.TOP_DIRECTORY_ONLY):
         '''
         fi.iter_directories(search, option) -> generator over subdirectories in path
         Returns a generator over subdirectories from the current directory.
-        'option' should be one of the enumeration DirectorySearchOption values. Dafaults to 'TopDirectoryOnly'.
+        'option' should be one of the enumeration DirectorySearchOption values. Dafaults to 'TOP_DIRECTORY_ONLY'.
         '''
         if not os.path.isdir(self.original_path):
             raise NotSupportedException(
                 "'%s' is not a directory" % self.original_path)
-        if option == DirectorySearchOption.TopDirectoryOnly:
+        if option == DirectorySearchOption.TOP_DIRECTORY_ONLY:
             for name in os.listdir(self.original_path):
                 if os.path.isdir(os.path.join(self.original_path, name)) and fnmatch.fnmatch(name, search):
                     yield FileInfo(os.path.join(self.original_path, name))
-        elif option == DirectorySearchOption.AllDirectories:
+        elif option == DirectorySearchOption.ALL_DIRECTORIES:
             pathlist = [self.full_path]
             lx = 1
             while lx:
@@ -667,20 +675,20 @@ class FileInfo(object):
         else:
             raise TypeError("invalid arguments")
 
-    def iter_files(self, search="*", option=DirectorySearchOption.TopDirectoryOnly):
+    def iter_files(self, search="*", option=DirectorySearchOption.TOP_DIRECTORY_ONLY):
         '''
         fi.iter_files(search, option) -> generator over files in path
         Returns a generator over files from the current directory.
-        'option' should be one of the enumeration DirectorySearchOption values. Dafaults to 'TopDirectoryOnly'.
+        'option' should be one of the enumeration DirectorySearchOption values. Dafaults to 'TOP_DIRECTORY_ONLY'.
         '''
         if not os.path.isdir(self.original_path):
             raise NotSupportedException(
                 "'%s' is not a directory" % self.original_path)
-        if option == DirectorySearchOption.TopDirectoryOnly:
+        if option == DirectorySearchOption.TOP_DIRECTORY_ONLY:
             for name in os.listdir(self.original_path):
                 if os.path.isfile(os.path.join(self.original_path, name)) and fnmatch.fnmatch(name, search):
                     yield FileInfo(os.path.join(self.original_path, name))
-        elif option == DirectorySearchOption.AllDirectories:
+        elif option == DirectorySearchOption.ALL_DIRECTORIES:
             pathlist = [self.full_path]
             lx = 1
             while lx:
@@ -696,20 +704,20 @@ class FileInfo(object):
         else:
             raise TypeError("invalid arguments")
 
-    def iter_items(self, search="*", option=DirectorySearchOption.TopDirectoryOnly):
+    def iter_items(self, search="*", option=DirectorySearchOption.TOP_DIRECTORY_ONLY):
         '''
         fi.iter_items(search, option) -> generator over items in path.
         Returns a generator over items from the current directory.
-        'option' should be one of the enumeration DirectorySearchOption values. Dafaults to 'TopDirectoryOnly'.
+        'option' should be one of the enumeration DirectorySearchOption values. Dafaults to 'TOP_DIRECTORY_ONLY'.
         '''
         if not os.path.isdir(self.original_path):
             raise NotSupportedException(
                 "'%s' is not a directory" % self.original_path)
-        if option == DirectorySearchOption.TopDirectoryOnly:
+        if option == DirectorySearchOption.TOP_DIRECTORY_ONLY:
             for name in os.listdir(self.original_path):
                 if fnmatch.fnmatch(name, search):
                     yield FileInfo(os.path.join(self.original_path, name))
-        elif option == DirectorySearchOption.AllDirectories:
+        elif option == DirectorySearchOption.ALL_DIRECTORIES:
             pathlist = [self.full_path]
             lx = 1
             while lx:
@@ -725,11 +733,11 @@ class FileInfo(object):
         else:
             raise TypeError("invalid arguments")
 
-    def get_directory_length(self, option=DirectorySearchOption.TopDirectoryOnly, search="*"):
+    def get_directory_length(self, option=DirectorySearchOption.TOP_DIRECTORY_ONLY, search="*"):
         '''
         fi.get_directory_length(option) -> int
         Returns the Length of files in a directory.
-        'option' should be one of the enumeration DirectorySearchOption values. Dafaults to 'TopDirectoryOnly'.
+        'option' should be one of the enumeration DirectorySearchOption values. Dafaults to 'TOP_DIRECTORY_ONLY'.
         '''
         length = 0
         for fi in self.iter_files(search, option):
@@ -907,7 +915,7 @@ class FileInfo(object):
             if os.path.exists(self.original_path):
                 if isinstance(attrib, FileAttributes):
                     attrib = attrib.value
-                if not isinstance(attrib, int):
+                elif not isinstance(attrib, int):
                     raise TypeError(
                         "Attributes should be a bitwise combination of the enumeration FileAttributes values")
                 if attrib != 0:

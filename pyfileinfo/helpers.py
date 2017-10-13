@@ -22,188 +22,119 @@ def translate(pat):
     return res + "$"
 
 
-class FileAttributes:
+class Flag(object):
+    '''
+    Helper for flags.
+    '''
+    @property
+    def value(self):
+        '''
+        type: int
+        Represents the bitwise combination of the enumeration values.
+        '''
+        return self.__value
+
+    def __init__(self, value):
+        self.__value = value
+
+    def __invert__(self):
+        return self.__class__(~self.value)
+
+    def __or__(self, other):
+        if isinstance(other, self.__class__):
+            return self.__class__(self.value | other.value)
+        elif isinstance(other, int):
+            return self.__class__(self.value | other)
+        else:
+            raise NotSupportedException()
+
+    def __and__(self, other):
+        if isinstance(other, FileAttributes):
+            return self.__class__(self.value & other.value)
+        elif isinstance(other, int):
+            return self.__class__(self.value & other)
+        else:
+            raise NotSupportedException()
+
+    def __xor__(self, other):
+        if isinstance(other, FileAttributes):
+            return self.__class__(self.value ^ other.value)
+        elif isinstance(other, int):
+            return self.__class__(self.value ^ other)
+        else:
+            raise NotSupportedException()
+
+    def __add__(self, other):
+        return self | other
+
+    def __sub__(self, other):
+        return self & ~ other
+
+    def __eq__(self, other):
+        if isinstance(other, FileAttributes):
+            return self.value == other.value
+        elif isinstance(other, int):
+            return self.value == other
+        else:
+            return False
+
+    def __repr__(self):
+        keys = []
+        for k, v in self._attributes.items():
+            if self.__value & v:
+                keys.append('{0}.{1}'.format(self.__class__.__name__, k))
+        if not keys:
+            raise NotSupportedException()
+        return " | ".join(keys)
+
+    @property
+    def _attributes(self):
+        return {k: v for k, v in self.__class__.__dict__.items()
+                if not re.match('<function.*?>', str(v)) and not k.startswith('_')}
+
+
+class FileAttributes(Flag):
     '''
     Define values of file attributes
     '''
-    ReadOnly = 0x1
-    Hidden = 0x2
-    System = 0x4
-    Directory = 0x10
-    Archive = 0x20
-    Device = 0x40
-    Normal = 0x80
-    Temporary = 0x100
-    SparseFile = 0x200
-    ReparsePoint = 0x400
-    Compressed = 0x800
-    Offline = 0x1000
-    NotContentIndexed = 0x2000
-    Encrypted = 0x4000
-    Virtual = 0x10000
-
-    @property
-    def value(self):
-        '''
-        type: int
-        Represents the bitwise combination of the enumeration FileAttributes values.
-        '''
-        return self.__attribs
-
-    def __init__(self, attribs):
-        self.__attribs = attribs
-
-    def __invert__(self):
-        return FileAttributes(~self.value)
-
-    def __or__(self, other):
-        if isinstance(other, FileAttributes):
-            return FileAttributes(self.value | other.value)
-        elif isinstance(other, int):
-            return FileAttributes(self.value | other)
-        else:
-            raise NotSupportedException()
-
-    def __and__(self, other):
-        if isinstance(other, FileAttributes):
-            return FileAttributes(self.value & other.value)
-        elif isinstance(other, int):
-            return FileAttributes(self.value & other)
-        else:
-            raise NotSupportedException()
-
-    def __xor__(self, other):
-        return self & ~ other
-
-    def __add__(self, other):
-        return self | other
-
-    def __sub__(self, other):
-        return self & ~ other
-
-    def __repr__(self):
-        ret = []
-        if self.__attribs & self.ReadOnly:
-            ret += ["FileAttributes.ReadOnly"]
-        if self.__attribs & self.Hidden:
-            ret += ["FileAttributes.Hidden"]
-        if self.__attribs & self.System:
-            ret += ["FileAttributes.System"]
-        if self.__attribs & self.Directory:
-            ret += ["FileAttributes.Directory"]
-        if self.__attribs & self.Archive:
-            ret += ["FileAttributes.Archive"]
-        if self.__attribs & self.Device:
-            ret += ["FileAttributes.Device"]
-        if self.__attribs & self.Normal:
-            ret += ["FileAttributes.Normal"]
-        if self.__attribs & self.Temporary:
-            ret += ["FileAttributes.Temporary"]
-        if self.__attribs & self.SparseFile:
-            ret += ["FileAttributes.SparseFile"]
-        if self.__attribs & self.ReparsePoint:
-            ret += ["FileAttributes.ReparsePoint"]
-        if self.__attribs & self.Compressed:
-            ret += ["FileAttributes.Compressed"]
-        if self.__attribs & self.Offline:
-            ret += ["FileAttributes.Offline"]
-        if self.__attribs & self.NotContentIndexed:
-            ret += ["FileAttributes.NotContentIndexed"]
-        if self.__attribs & self.Encrypted:
-            ret += ["FileAttributes.Encrypted"]
-        if self.__attribs & self.Virtual:
-            ret += ["FileAttributes.Virtual"]
-        return " | ".join(ret)
+    READ_ONLY = 0x1
+    HIDDEN = 0x2
+    SYSTEM = 0x4
+    DIRECTORY = 0x10
+    ARCHIVE = 0x20
+    DEVICE = 0x40
+    NORMAL = 0x80
+    TEMPORARY = 0x100
+    SPARSE_FILE = 0x200
+    REPARSE_POINT = 0x400
+    COMPRESSED = 0x800
+    OFFLINE = 0x1000
+    NOT_CONTENT_INDEXED = 0x2000
+    ENCRYPTED = 0x4000
+    VIRTUAL = 0x10000
 
 
-class DirectorySearchOption:
-    '''
-    Define values for the DirectorySearch
-    '''
-    TopDirectoryOnly = 0
-    AllDirectories = 1
-
-
-class SecurityInformation:
+class SecurityInformation(Flag):
     '''
     Define values for SecurityInformation
     '''
-    Owner = 0x1
-    Group = 0x2
-    Dacl = 0x4
-    Sacl = 0x8
-    Label = 0x10
-    Attribute = 0x20
-    Scope = 0x40
-    Backup = 0x10000
-    UnprotectedSacl = 0x10000000
-    UnprotectedDacl = 0x20000000
-    ProtectedSacl = 0x40000000
-    ProtectedDacl = 0x80000000
+    OWNER = 0x1
+    GROUP = 0x2
+    DACL = 0x4
+    SACL = 0x8
+    LABEL = 0x10
+    ATTRIBUTE = 0x20
+    SCOPE = 0x40
+    BACKUP = 0x10000
+    UNPROTECTED_SACL = 0x10000000
+    UNPROTECTED_DACL = 0x20000000
+    PROTECTED_SACL = 0x40000000
+    PROTECTED_DACL = 0x80000000
 
-    @property
-    def value(self):
-        '''
-        type: int
-        Represents the bitwise combination of the enumeration SecurityInformation values.
-        '''
-        return self.__info
 
-    def __init__(self, info):
-        self.__info = info
-
-    def __invert__(self):
-        return SecurityInformation(~self.value)
-
-    def __or__(self, other):
-        if isinstance(other, SecurityInformation):
-            return SecurityInformation(self.value | other.value)
-        elif isinstance(other, int):
-            return SecurityInformation(self.value | other)
-        else:
-            raise NotSupportedException()
-
-    def __and__(self, other):
-        if isinstance(other, SecurityInformation):
-            return SecurityInformation(self.value & other.value)
-        elif isinstance(other, int):
-            return SecurityInformation(self.value & other)
-        else:
-            raise NotSupportedException()
-
-    def __xor__(self, other):
-        return self & ~ other
-
-    def __add__(self, other):
-        return self | other
-
-    def __sub__(self, other):
-        return self & ~ other
-
-    def __repr__(self):
-        ret = []
-        if self.__info & self.Owner:
-            ret += ["SecurityInformation.Owner"]
-        if self.__info & self.Group:
-            ret += ["SecurityInformation.Group"]
-        if self.__info & self.Dacl:
-            ret += ["SecurityInformation.Dacl"]
-        if self.__info & self.Sacl:
-            ret += ["SecurityInformation.Sacl"]
-        if self.__info & self.Label:
-            ret += ["SecurityInformation.Label"]
-        if self.__info & self.Attribute:
-            ret += ["SecurityInformation.Attribute"]
-        if self.__info & self.Scope:
-            ret += ["SecurityInformation.Scope"]
-        if self.__info & self.Backup:
-            ret += ["SecurityInformation.Backup"]
-        if self.__info & self.UnprotectedSacl:
-            ret += ["SecurityInformation.UnprotectedSacl"]
-        if self.__info & self.UnprotectedDacl:
-            ret += ["SecurityInformation.UnprotectedDacl"]
-        if self.__info & self.ProtectedSacl:
-            ret += ["SecurityInformation.ProtectedSacl"]
-        if self.__info & self.ProtectedDacl:
-            ret += ["SecurityInformation.ProtectedDacl"]
-        return " | ".join(ret)
+class DirectorySearchOption(object):
+    '''
+    Define values for the DirectorySearch
+    '''
+    TOP_DIRECTORY_ONLY = 0
+    ALL_DIRECTORIES = 1
